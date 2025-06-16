@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Report: Auction Countdown UI</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- 
+        Chosen Palette: Slate & Indigo
+        Application Structure Plan: A dashboard-style layout is used to provide a high-level overview of the project at a glance. The core information from the report (features, tech stack, setup) is broken down into interactive "widgets." A central interactive donut chart allows users to filter a detailed feature checklist, transforming passive reading into active exploration. This non-linear structure is more engaging and allows users to quickly find the information they need, which is superior to a linear text document for understanding a project's scope and status.
+        Visualization & Content Choices: 
+        - Report Info: Core vs. Bonus Features -> Goal: Compare/Inform -> Viz: Donut Chart + Interactive List -> Interaction: Click chart to filter list -> Justification: The chart gives a quick visual summary of feature completeness, while the filterable list provides an engaging way to drill into details. This is more effective than a static list. -> Library: Chart.js for the chart, Vanilla JS for filtering.
+        - Report Info: Technical Stack -> Goal: Inform -> Viz: Styled HTML "tags" -> Interaction: None -> Justification: More visually scannable and modern than a bulleted list. -> Library/Method: HTML/Tailwind.
+        - Report Info: Setup Instructions/Usage -> Goal: Organize -> Viz: Tabbed Interface -> Interaction: Click tabs to switch content -> Justification: Condenses large blocks of text, keeping the main dashboard clean and focused on key project insights. -> Library/Method: HTML/Tailwind & Vanilla JS.
+        CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. 
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .tab-button.active {
+            border-color: #4f46e5; /* indigo-600 */
+            color: #4f46e5;
+            background-color: #eef2ff; /* indigo-50 */
+        }
+        .feature-item:hover {
+            background-color: #f4f4f5; /* zinc-100 */
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900">Auction Countdown UI</h1>
+            <p class="mt-2 text-lg text-slate-600">An Interactive Project Overview</p>
+            <div class="mt-4 inline-flex items-center gap-2 rounded-full bg-indigo-100 px-4 py-1 text-sm font-semibold text-indigo-700">
+                <span class="relative flex h-3 w-3">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+                </span>
+                Project Status: Completed
+            </div>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <div class="lg:col-span-2 space-y-8">
+                
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-900 mb-4">Feature Explorer</h2>
+                    <p class="text-slate-600 mb-6">
+                        This section provides a visual breakdown of the project's implemented features. Click on a segment in the "Feature Completeness" chart to filter the checklist below and explore the details of Core and Bonus functionalities.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <div class="chart-container">
+                            <canvas id="featuresChart"></canvas>
+                        </div>
+                        <div id="feature-list-container">
+                            <h3 class="font-semibold text-slate-800 text-center md:text-left mb-3">Feature Checklist</h3>
+                            <ul id="feature-list" class="space-y-2 text-sm max-h-60 overflow-y-auto pr-2">
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-900 mb-4">Setup & Usage Guide</h2>
+                    <p class="text-slate-600 mb-6">
+                        This guide contains all the necessary steps to get the project running on a local machine, as well as instructions on how to use the application. Use the tabs below to switch between the setup instructions and usage details.
+                    </p>
+                    <div>
+                        <div class="border-b border-slate-200 mb-4">
+                            <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                                <button onclick="switchTab(event, 'setup')" class="tab-button active whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors duration-200">
+                                    Setup Instructions
+                                </button>
+                                <button onclick="switchTab(event, 'usage')" class="tab-button whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors duration-200">
+                                    Usage
+                                </button>
+                                 <button onclick="switchTab(event, 'enhancements')" class="tab-button whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors duration-200">
+                                    Potential Enhancements
+                                </button>
+                            </nav>
+                        </div>
+                        <div id="setup" class="tab-content text-sm text-slate-600 space-y-4">
+                            <div>
+                                <h3 class="font-semibold text-slate-800 mb-2">1. Create a New Project</h3>
+                                <p>If you're starting from scratch, create a new Vite React project. Otherwise, clone the repository.</p>
+                                <code class="block bg-slate-100 text-slate-800 p-3 rounded-md mt-2 text-xs">npm create vite@latest auction-countdown-app -- --template react-ts<br>cd auction-countdown-app</code>
+                            </div>
+                             <div>
+                                <h3 class="font-semibold text-slate-800 mb-2">2. Install Dependencies</h3>
+                                <p>Install the required Node.js packages and additional libraries.</p>
+                                <code class="block bg-slate-100 text-slate-800 p-3 rounded-md mt-2 text-xs">npm install<br>npm install framer-motion lucide-react tailwindcss postcss autoprefixer</code>
+                            </div>
+                             <div>
+                                <h3 class="font-semibold text-slate-800 mb-2">3. Configure Tailwind & Place Source Code</h3>
+                                <p>Generate Tailwind config files and place the source code in the correct directories as outlined in the project documentation.</p>
+                            </div>
+                        </div>
+                        <div id="usage" class="tab-content hidden text-sm text-slate-600">
+                             <h3 class="font-semibold text-slate-800 mb-2">Starting the Development Server</h3>
+                            <p>To start the development server and view the application, run the following command in your project directory. This will typically open the application in your browser at http://localhost:5173.</p>
+                            <code class="block bg-slate-100 text-slate-800 p-3 rounded-md mt-2 text-xs">npm run dev</code>
+                        </div>
+                        <div id="enhancements" class="tab-content hidden text-sm text-slate-600">
+                            <ul class="list-disc list-inside space-y-2">
+                                <li><strong>Backend Integration:</strong> Connect to a real backend like Firebase for persistent data.</li>
+                                <li><strong>User Authentication:</strong> Implement user login and registration.</li>
+                                <li><strong>Advanced Bid History:</strong> Allow viewing a complete history of bids with pagination.</li>
+                                <li><strong>Filtering & Sorting:</strong> Add options to filter or sort auction items.</li>
+                                <li><strong>Bid Confirmation:</strong> Add a confirmation modal after placing a bid.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <div class="space-y-8">
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-900 mb-4">Technical Stack</h2>
+                     <p class="text-slate-600 mb-6 text-sm">
+                        The project leverages a modern frontend stack to deliver a robust and maintainable application.
+                    </p>
+                    <div id="tech-stack" class="flex flex-wrap gap-2">
+                    </div>
+                </section>
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-900 mb-4">Project Assumptions</h2>
+                     <p class="text-slate-600 text-sm">
+                        Key assumptions made during the development of this project:
+                    </p>
+                    <ul id="assumptions-list" class="mt-4 space-y-2 list-disc list-inside text-sm text-slate-600">
+                    </ul>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const featuresData = {
+            core: [
+                { name: "Live Countdown Timer", implemented: true },
+                { name: "Real-time Bid Updates", implemented: true },
+                { name: "Current Highest Bid Display", implemented: true },
+                { name: "Bid Submission Form", implemented: true },
+                { name: "Responsive Design", implemented: true },
+                { name: "Auction Item Details", implemented: true },
+                { name: "Auction End State", implemented: true }
+            ],
+            bonus: [
+                { name: "Visual Notification on New Bid", implemented: true },
+                { name: "Multiple Auction Items", implemented: true },
+                { name: "Bid History Display", implemented: true },
+                { name: "Dark Mode Toggle", implemented: true },
+                { name: "Accessibility (Basic)", implemented: true }
+            ]
+        };
+
+        const techStackData = [
+            { name: "ReactJS", color: "bg-cyan-100 text-cyan-800" },
+            { name: "TypeScript", color: "bg-blue-100 text-blue-800" },
+            { name: "Tailwind CSS", color: "bg-sky-100 text-sky-800" },
+            { name: "Framer Motion", color: "bg-purple-100 text-purple-800" },
+            { name: "Lucide React", color: "bg-green-100 text-green-800" }
+        ];
+
+        const assumptionsData = [
+            "All data is mocked and stored in-memory; no backend is used.",
+            "Bid updates are simulated using timers, not WebSockets.",
+            "A modern browser environment is assumed for compatibility."
+        ];
+
+        let myChart;
+        let currentFilter = 'all';
+
+        function createFeatureItem(feature) {
+            return `
+                <li class="feature-item flex items-center justify-between p-2 rounded-lg transition-colors duration-200">
+                    <span class="text-slate-700">${feature.name}</span>
+                    <span class="flex items-center justify-center w-5 h-5 rounded-full ${feature.implemented ? 'bg-green-500' : 'bg-slate-300'}">
+                        <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    </span>
+                </li>`;
+        }
+        
+        function renderFeatures() {
+            const featureList = document.getElementById('feature-list');
+            let featuresToRender = [];
+            if (currentFilter === 'all') {
+                 featuresToRender = [...featuresData.core, ...featuresData.bonus];
+            } else if (currentFilter === 'core') {
+                 featuresToRender = featuresData.core;
+            } else {
+                 featuresToRender = featuresData.bonus;
+            }
+            featureList.innerHTML = featuresToRender.map(createFeatureItem).join('');
+        }
+
+        function renderTechStack() {
+            const techStackContainer = document.getElementById('tech-stack');
+            techStackContainer.innerHTML = techStackData.map(tech => 
+                <span class="font-medium text-xs px-2.5 py-1 rounded-full ${tech.color}">${tech.name}</span>
+            ).join('');
+        }
+        
+        function renderAssumptions() {
+            const assumptionsContainer = document.getElementById('assumptions-list');
+            assumptionsContainer.innerHTML = assumptionsData.map(item => <li>${item}</li>).join('');
+        }
+
+        function switchTab(event, tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabName).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderFeatures();
+            renderTechStack();
+            renderAssumptions();
+
+            const ctx = document.getElementById('featuresChart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Core Features', 'Bonus Features'],
+                    datasets: [{
+                        label: 'Feature Completeness',
+                        data: [featuresData.core.length, featuresData.bonus.length],
+                        backgroundColor: [
+                            'rgba(79, 70, 229, 0.8)', // indigo-600
+                            'rgba(14, 165, 233, 0.8)' // sky-500
+                        ],
+                        borderColor: [
+                            'rgba(255, 255, 255, 1)',
+                            'rgba(255, 255, 255, 1)'
+                        ],
+                        borderWidth: 3,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    family: 'Inter',
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                             titleFont: { family: 'Inter' },
+                             bodyFont: { family: 'Inter' },
+                        }
+                    },
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const clickedIndex = elements[0].index;
+                            const newFilter = clickedIndex === 0 ? 'core' : 'bonus';
+                            
+                            if (currentFilter === newFilter) {
+                                currentFilter = 'all'; // Toggle back to all if same segment is clicked
+                                myChart.data.datasets[0].backgroundColor = ['rgba(79, 70, 229, 0.8)', 'rgba(14, 165, 233, 0.8)'];
+                            } else {
+                                currentFilter = newFilter;
+                                myChart.data.datasets[0].backgroundColor = myChart.data.datasets[0].backgroundColor.map((color, index) => 
+                                    index === clickedIndex ? color.replace('0.8', '1') : color.replace('1', '0.3').replace('0.8', '0.3')
+                                );
+                            }
+                            myChart.update();
+                            renderFeatures();
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
